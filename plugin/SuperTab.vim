@@ -1,5 +1,5 @@
 " Author: Gergely Kontra <kgergely@mcl.hu>
-" Version: 0.3
+" Version: 0.31
 " Description:
 "   Use your tab key to do all your completion in insert mode!
 "   The script remembers the last completion type, and applies that.
@@ -8,10 +8,13 @@
 "   /u<C-x><C-f>/l<Tab><Tab><Tab>/p<Tab>/i<Tab>
 "   You can also manipulate the completion type used by changing g:complType
 "   variable.
-"   Type <leader>ac to begin experimental auto-completion
+"   You can cycle forward and backward with the <Tab> and <S-Tab> keys
+"   (<S-Tab> will not work in the console version)
+"   Note: you must press <Tab> once to be able to cycle back
 " History:
-"   Back to the roots. Autocompletion is another story...
-"   Now the prompt appears, when showmode is on
+"   0.3  Back to the roots. Autocompletion is another story...
+"        Now the prompt appears, when showmode is on
+"   0.31 Added <S-Tab> for backward cycling. (req by: Peter Chun)
 
 if !exists('complType') "Integration with other copmletion functions...
   let complType="\<C-p>"
@@ -33,10 +36,13 @@ if !exists('complType') "Integration with other copmletion functions...
 	let g:complType="\<C-x>".complType
       en
       iun <Tab>
+      iun <S-Tab>
       if g:complType=="\<C-p>" || g:complType=='p'
 	im <Tab> <C-p>
+	ino <S-Tab> <C-n>
       el
 	im <Tab> <C-n>
+	ino <S-Tab> <C-p>
       en
       retu g:complType
     el
@@ -47,6 +53,7 @@ if !exists('complType') "Integration with other copmletion functions...
 
   " From the doc |insert.txt| improved
   im <Tab> <C-p>
+  inore <S-Tab> <C-n>
   " This way after hitting <Tab>, hitting it once more will go to next match
   " (because in XIM mode <C-n> and <C-p> mappings are ignored)
   " and wont start a brand new completion
