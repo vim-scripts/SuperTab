@@ -1,5 +1,5 @@
 " Author: Gergely Kontra <kgergely@mcl.hu>
-" Version: 0.31
+" Version: 0.32
 " Description:
 "   Use your tab key to do all your completion in insert mode!
 "   The script remembers the last completion type, and applies that.
@@ -15,6 +15,7 @@
 "   0.3  Back to the roots. Autocompletion is another story...
 "        Now the prompt appears, when showmode is on
 "   0.31 Added <S-Tab> for backward cycling. (req by: Peter Chun)
+"   0.32 Corrected tab-insertion/completing decidion (thx to: Lorenz Wegener)
 
 if !exists('complType') "Integration with other copmletion functions...
   let complType="\<C-p>"
@@ -63,7 +64,7 @@ if !exists('complType') "Integration with other copmletion functions...
   ino <C-p> <C-R>=<SID>SuperTab()<CR>
 
   fu! <SID>SuperTab()
-    if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+    if (strpart(getline('.'),col('.')-2,1)=~'^\s\?$')
       return "\<Tab>"
     el
       return g:complType
