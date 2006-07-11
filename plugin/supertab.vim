@@ -1,5 +1,7 @@
 " Author: Gergely Kontra <kgergely@mcl.hu>
-" Version: 0.4
+"   You may direct issues regarding version 0.4+ to
+"   Eric Van Dewoestine (ervandew@yahoo.com).
+" Version: 0.41
 " Description:
 "   Use your tab key to do all your completion in insert mode!
 "   The script remembers the last completion type, and applies that.
@@ -12,13 +14,20 @@
 "   (<S-Tab> will not work in the console version)
 "   Note: you must press <Tab> once to be able to cycle back
 " History:
+"   0.41 Fixed couple bugs introduced in last version (Eric Van Dewoestine).
+"   0.4  Added the following functionality (Eric Van Dewoestine)
+"        - support for vim 7 omni, user, and spelling completion modes
+"          (should be backwards compatible with vim 6.x).
+"        - command :SuperTabHelp which opens a window with available
+"          completion types that the user can choose from.
+"        - variable g:SuperTabRetainCompletionType setting for determining if
+"          and for how long to retain completion type.
+"   0.32 Corrected tab-insertion/completing decidion (thx to: Lorenz Wegener)
+"   0.31 Added <S-Tab> for backward cycling. (req by: Peter Chun)
 "   0.3  Back to the roots. Autocompletion is another story...
 "        Now the prompt appears, when showmode is on
-"   0.31 Added <S-Tab> for backward cycling. (req by: Peter Chun)
-"   0.32 Corrected tab-insertion/completing decidion (thx to: Lorenz Wegener)
-"   0.4  Upgrade for vim7 and improvements by Eric Van Dewoestine
 
-if !exists('complType') "Integration with other copmletion functions...
+if !exists('complType') "Integration with other completion functions...
 
   " This variable determines if, and for how long, the current completion type
   " is retained.  The possible values include:
@@ -99,10 +108,10 @@ if !exists('complType') "Integration with other copmletion functions...
       im <silent> <ESC>
         \ <ESC>:call SuperTabSetCompletionType(g:SuperTabDefaultCompletionType)<cr>
 
-   " since vim 7, we can use InsertLeave autocmd.
+    " since vim 7, we can use InsertLeave autocmd.
     else
       augroup supertab
-        autocmd InsertLeave <buffer>
+        autocmd InsertLeave *
           \ call SuperTabSetCompletionType(g:SuperTabDefaultCompletionType)
       augroup END
     endif
@@ -121,15 +130,6 @@ if !exists('complType') "Integration with other copmletion functions...
       else
         let complType="\<C-x>".complType
       endif
-      iun <Tab>
-      iun <S-Tab>
-      if complType=="\<C-p>" || complType=='p'
-        im <Tab> <C-p>
-        ino <S-Tab> <C-n>
-      else
-        im <Tab> <C-n>
-        ino <S-Tab> <C-p>
-      endif
 
       if g:SuperTabRetainCompletionType
         let g:complType = complType
@@ -143,8 +143,8 @@ if !exists('complType') "Integration with other copmletion functions...
   endf
 
   " From the doc |insert.txt| improved
-  im <Tab> <C-p>
-  inore <S-Tab> <C-n>
+  im <Tab> <C-n>
+  inore <S-Tab> <C-p>
 
   " This way after hitting <Tab>, hitting it once more will go to next match
   " (because in XIM mode <C-n> and <C-p> mappings are ignored)
@@ -158,9 +158,9 @@ if !exists('complType') "Integration with other copmletion functions...
     if (strpart(getline('.'),col('.')-2,1)=~'^\s\?$')
       return "\<Tab>"
     else
-      " exception: if in <c-p> mode, then <c-n> should move down the list, and
-      " <c-p> up the list.
-      if a:command == 'n' && g:complType == "\<C-P>"
+      " exception: if in <c-p> mode, then <c-n> should move up the list, and
+      " <c-p> down the list.
+      if a:command == 'p' && g:complType == "\<C-P>"
         return "\<C-N>"
       endif
       return g:complType
@@ -209,7 +209,3 @@ if !exists('complType') "Integration with other copmletion functions...
     command SuperTabHelp :call <SID>SuperTabHelp()
   endif
 en
-
-
-
-
